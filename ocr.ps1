@@ -1,6 +1,10 @@
 param([string]$Image = "")
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $ErrorActionPreference = 'Stop'
+# WinRT StorageFile 只认反斜杠规范路径: 正斜杠能过 Test-Path, 却让
+# GetFileFromPathAsync 抛 "One or more errors occurred"(2026-10-10 实测
+# agent 传正斜杠路径七连炸) —— 进门先规范化, 斜杠/相对路径一律救回来.
+$Image = [System.IO.Path]::GetFullPath($Image)
 if (-not (Test-Path $Image)) { Write-Output ("ERROR: image not found: " + $Image); exit 1 }
 Add-Type -AssemblyName System.Runtime.WindowsRuntime
 $null = [Windows.Media.Ocr.OcrEngine, Windows.Foundation, ContentType = WindowsRuntime]
