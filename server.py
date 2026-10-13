@@ -18,6 +18,10 @@ import time
 
 sys.stdout.reconfigure(encoding="utf-8")
 sys.stderr.reconfigure(encoding="utf-8")
+# stdin 同款 reconfigure: 中文 Windows 下 python 默认按 GBK+surrogateescape 解码 stdin,
+# 客户端按协议写的 UTF-8(如中文参数)会解码成代理字符 → 回写时 UnicodeEncodeError 崩掉
+# 整个 server. errors=replace: 垃圾字节退化成 U+FFFD, 坏行 json 解析失败跳过, server 不死.
+sys.stdin.reconfigure(encoding="utf-8", errors="replace")
 BASE = os.path.dirname(os.path.abspath(__file__))
 LOG = os.path.join(BASE, "server.log")
 
